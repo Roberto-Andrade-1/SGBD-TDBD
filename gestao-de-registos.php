@@ -21,25 +21,25 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                 $resultDados = mysqli_query($link, $dados);
 
                 if(mysqli_num_rows($resultDados)>0){
-                    while($row0 = mysqli_fetch_assoc($resultDados)){
+                    while($Crianca = mysqli_fetch_assoc($resultDados)){
 
-                        echo "<tr><td>" .$row0["name"]. "</td>";
-                        echo "<td>" .$row0["birth_date"]. "</td>";
-                        echo "<td>" .$row0["tutor_name"]. "</td>";    
-                        echo "<td>" .$row0["tutor_phone"]. "</td>";
-                        echo "<td>" .$row0["tutor_email"]. "</td>";
+                        echo "<tr><td>" .$Crianca["name"]. "</td>";
+                        echo "<td>" .$Crianca["birth_date"]. "</td>";
+                        echo "<td>" .$Crianca["tutor_name"]. "</td>";    
+                        echo "<td>" .$Crianca["tutor_phone"]. "</td>";
+                        echo "<td>" .$Crianca["tutor_email"]. "</td>";
                         echo "<td>"; 
                         
-                        $cadaidcriança = $row0["id"];
+                        $cadaidcriança = $Crianca["id"];
 
-                        $item = "SELECT id,name FROM item WHERE item.id <= 3 ORDER BY item.name ASC";
-                        $resultItem = mysqli_query($link,$item);
+                        $buscarItem = "SELECT `name`,`id` FROM item WHERE item.id <= 3 ORDER BY item.name ASC";
+                        $resultItem = mysqli_query($link,$buscarItem);
                         
-                        while($row1 = mysqli_fetch_assoc($resultItem)){
+                        while($Item = mysqli_fetch_assoc($resultItem)){
                             
-                            $cadaiditem = $row1["id"];
+                            $cadaiditem = $Item["id"];
                             
-                            $query = "SELECT item.id,item.name,subitem.name AS s_nome ,value.id AS v_id,value.child_id,value.subitem_id,value.value,value.date,value.time,value.producer 
+                            $query = "SELECT distinct item.name,item.id,subitem.name AS s_nome ,value.id AS v_id,value.child_id,value.subitem_id,value.value,value.date,value.time,value.producer 
                             FROM item 
                             INNER JOIN subitem ON item.id = subitem.item_id 
                             INNER JOIN value ON subitem.id = value.subitem_id 
@@ -47,11 +47,13 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                             ORDER BY item.name ASC, date DESC, time DESC";
                             
                             $resultQuery = mysqli_query($link,$query);
-                            
-                            echo"".strtoupper($row1["name"]).": <p>";                       
-                            
+
+                            //utilizar um if para ver se tem informação em cada criança se não nao imprime isto
+                            //talvez usar distict 
+                            echo"".strtoupper($Item["name"]).": <p>";
                             while($row2 = mysqli_fetch_assoc($resultQuery)){
-                                #echo"".strtoupper($row2["name"]).":<p>";
+
+                                // usar um if para se o nome for igual ao primeiro fazer paragrafo caso contrario continuar na mesma linha
                                 echo" </p>[ed][ap]- <strong>".$row2["date"]."</strong> (".$row2["producer"].") - <strong>".$row2["s_nome"]."</strong> (".$row2["value"].");<p>";
                             }
                         }echo"</td></tr>";   
