@@ -78,10 +78,11 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                     <li>".preg_replace('/_/i',' ',$TipoItem["name"])."</li>
                     <ul>";
                     while ($Item = mysqli_fetch_assoc($resultItem)){
+                        
                         $url3 = "?estado=introducao&item=".$Item["id"]."";
                         echo"
                             <li> [<a href='$current_page.$url3' >".$Item["name"]."</a>]</li>
-                        ";
+                            ";
                     } echo "</ul> </ul>";
             }
         }
@@ -112,7 +113,8 @@ if(is_user_logged_in() && current_user_can("insert_values")){
             .error {color: #FF0012;}
             </style>
             <p><span class="error">* Campo obrigatório</span></p>
-            <form nome = "item_type_"'.$_SESSION["item_type_id"].'"_item_"'.$_SESSION["item_id"].'" method = "post" action ="?estado=validar&item="'.$_SESSION["item_id"].'">';
+            <form nome = "item_type_"'.$_SESSION["item_type_id"].'"_item_"'.$_SESSION["item_id"].'" method = "post" action ="?estado=validar&item="'.$_SESSION["item_id"].'">
+            ';
         
         while($Subitens = mysqli_fetch_assoc($resultObterSubitens)){
 
@@ -128,10 +130,10 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                         $resultUnidade = mysqli_query($link,$obterUnidade);
                         $Unidade = mysqli_fetch_assoc($resultUnidade);
 
-                        echo "".$Subitens["name"]." (".$Unidade["name"]."):<input type = 'text' name = '".$Subitens['form_field_name']."[]' ><p>";
+                        echo "".$Subitens["name"]." (".$Unidade["name"]."):<input type = 'text' name = '".$Subitens['form_field_name']."' ><p>";
                     }
                     else{
-                        echo "".$Subitens["name"].": <input type = 'text' name = '".$Subitens['form_field_name']."[]' ><p>";
+                        echo "".$Subitens["name"].": <input type = 'text' name = '".$Subitens['form_field_name']."' ><p>";
                     }
                 break;
                 
@@ -146,7 +148,7 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                             $resultUnidade = mysqli_query($link,$obterUnidade);
                             $Unidade = mysqli_fetch_assoc($resultUnidade);
 
-                            echo "".$Subitens["name"]." (".$Unidade["name"]."):<input type = 'text' name = '".$Subitens['form_field_name']."[]'><p>";
+                            echo "".$Subitens["name"]." (".$Unidade["name"]."):<input type = 'text' name = '".$Subitens['form_field_name']."'><p>";
                         }
                         else{
 
@@ -154,15 +156,15 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                             $resultUnidade = mysqli_query($link,$obterUnidade);
                             $Unidade = mysqli_fetch_assoc($resultUnidade);
 
-                            echo "".$Subitens["name"]." (".$Unidade["name"]."):<textarea id='".$Subitens['form_field_name']."' name = '".$Subitens['form_field_name']."[]' rows = '4' cols = '50'> </textarea> <p>";
+                            echo "".$Subitens["name"]." (".$Unidade["name"]."):<textarea id='".$Subitens['form_field_name']."' name = '".$Subitens['form_field_name']."' rows = '4' cols = '50'> </textarea> <p>";
                         }
                     }else{
                         if($Subitens["form_field_type"] == "text"){
 
-                            echo "".$Subitens["name"].":<input type = 'text' name = '".$Subitens['form_field_name']."[]'><p>";
+                            echo "".$Subitens["name"].":<input type = 'text' name = '".$Subitens['form_field_name']."'><p>";
                         }
                         else{
-                            echo "".$Subitens["name"].":<textarea id='".$Subitens['form_field_name']."' name = '".$Subitens['form_field_name']."[]' rows = '4' cols = '50'> </textarea> <p>";
+                            echo "".$Subitens["name"].":<textarea id='".$Subitens['form_field_name']."' name = '".$Subitens['form_field_name']."' rows = '4' cols = '50'> </textarea> <p>";
                         }
                     }
                 break;
@@ -314,8 +316,8 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                 break;
 
                 case 'radio':
-
-                    if(empty($_REQUEST[$Subitens['form_field_name']])){
+                    $campo = $_REQUEST[$Subitens['form_field_name']];
+                    if(empty($campo)){
                         $textoErro= "não preencheu o campo ";
                         echo $textoErro.$Subitens["name"]."<p>";
                         $erro++;
@@ -323,22 +325,12 @@ if(is_user_logged_in() && current_user_can("insert_values")){
                 break;
 
                 case 'checkbox':
-                    $valor = null;
-                    if(isset($_REQUEST[$Subitens['form_field_name']])){
-                        $valor = $_REQUEST[$Subitens['form_field_name']];
-                    }
-                    else{
+
+                    if(empty($_REQUEST[$Subitens['form_field_name']])){
                         $textoErro= "não preencheu o campo ";
                         echo $textoErro.$Subitens["name"]."<p>";
                         $erro++;
                     }
-                    // $numCheckBoxes = 0;
-                    // $numVerificadas = 0;
-                    // if(empty($_REQUEST[$Subitens['form_field_name']])){
-                    //     $textoErro= "não preencheu o campo ";
-                    //     echo $textoErro.$Subitens["name"]."<p>";
-                    //     $erro++;
-                    // }
                 break;
 
                 case 'selectbox':
@@ -363,14 +355,33 @@ if(is_user_logged_in() && current_user_can("insert_values")){
             $obterSubitens = "SELECT * FROM subitem WHERE item_id= ".$_SESSION["item_id"]." AND state = 'active' ORDER BY form_field_order ASC";
             $resultObterSubitens = mysqli_query($link,$obterSubitens);
             
+            
             while ($Subitens = mysqli_fetch_assoc($resultObterSubitens)){
-                $valores = $_POST[$Subitens["form_field_name"]];
-                echo"
-                <p>".$Subitens["name"].": ".$valores."</p>";
+                
+                echo "<form method='post' action='?estado=inserir&item='".$_SESSION["item_id"]."' > ";
 
-                echo "
-                <form method='post' action='?estado=inserir&item='".$_SESSION["item_id"]."' >
-                <input type='hidden' name='".$Subitens["name"]."' value='".$valores."' > ";
+                if($Subitens["form_field_type"] == 'checkbox'){
+                    
+                    echo $Subitens["name"].": ";
+
+                    $valores = $_POST[$Subitens["form_field_name"]];
+
+                    for($i = 0;$i<sizeof($valores);$i++){
+                        echo $valores[$i]." ";
+                        
+                        echo "<input type='hidden' name='checkbox[]' value=".$valores[$i]." > ";
+                    }
+
+                }else{
+                    
+                    $valores = $_POST[$Subitens["form_field_name"]];
+                    
+                    echo"
+                    <p>".$Subitens["name"].": ".$valores."</p>";
+    
+                    echo "<input type='hidden' name='".$Subitens['name']."' value='".$valores."' > "; 
+                }
+            
             }
             echo"
             <input type='hidden' name='estado' value='inserir'>
@@ -386,20 +397,31 @@ if(is_user_logged_in() && current_user_can("insert_values")){
         $resultObterSubitens = mysqli_query($link,$obterSubitens);
         while ($Subitens = mysqli_fetch_assoc($resultObterSubitens)){
 
-        $inserirNaTabela = "INSERT INTO `value` (`id`, `child_id`, `subitem_id`, `value`, `date`, `time`, `producer`)
-        VALUES (NULL, '".$_SESSION["child_id"]."', '".$Subitens ["id"]."', '".$_POST[$Subitens["name"]]."', '".date('Y-m-d')."', '".date('H:i:s')."', '".get_current_user()."')";
-        echo $inserirNaTabela;
-        $resultInserirNaTabela = mysqli_query($link,$inserirNaTabela);
+            if($Subitens["form_field_type"] == 'checkbox'){
+                $nome = $_POST["checkbox"];
+
+                for($i = 0; $i < sizeof($nome); $i++){
+                
+                    $inserirNaTabela = "INSERT INTO `value` (`id`, `child_id`, `subitem_id`, `value`, `date`, `time`, `producer`)
+                    VALUES (NULL, '".$_SESSION["child_id"]."', '".$Subitens ["id"]."', '$nome[$i]', '".date('Y-m-d')."', '".date('H:i:s')."', '".get_current_user()."')";
+                    $resultInserirNaTabela = mysqli_query($link,$inserirNaTabela);
+                }
+            }else{  
+
+                $inserirNaTabela = "INSERT INTO `value` (`id`, `child_id`, `subitem_id`, `value`, `date`, `time`, `producer`)
+                VALUES (NULL, '".$_SESSION["child_id"]."', '".$Subitens ["id"]."', '".$_POST[$Subitens["name"]]."', '".date('Y-m-d')."', '".date('H:i:s')."', '".get_current_user()."')";
+                $resultInserirNaTabela = mysqli_query($link,$inserirNaTabela);
+            }
         }
-        // if($resultInserirNaTabela){
-        //     $pagina = "?estado=escolher_item&crianca=".$_SESSION["child_id"]."";
-        //     echo"
-        //         <p style='color:green;'>Inseriu os dados de registo com sucesso.</p>
-        //         <p>Clique em <a href='$current_page'>Voltar</a> para voltar ao início da inserção de valores ou em <a href='$current_page.$pagina'>Escolher </a>item se quiser continuar a inserir valores associados a esta criança<br>";   
-        // }else{
-        //     echo"<p style='color:red;'>Ocorreu um erro ao inserir os dados</p>";
-        //     button_voltar();
-        // }
+        if($resultInserirNaTabela){
+            $pagina = "?estado=escolher_item&crianca=".$_SESSION["child_id"]."";
+            echo"
+                <p style='color:green;'>Inseriu os dados de registo com sucesso.</p>
+                <p>Clique em <a href='$current_page'>Voltar</a> para voltar ao início da inserção de valores ou em <a href='$current_page.$pagina'>Escolher </a>item se quiser continuar a inserir valores associados a esta criança<br>";   
+        }else{
+            echo"<p style='color:red;'>Ocorreu um erro ao inserir os dados</p>";
+            button_voltar();
+        }
     }
 }
 else{
