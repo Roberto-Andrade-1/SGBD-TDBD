@@ -4,64 +4,76 @@ require_once("custom/php/common.php");
 
 if(is_user_logged_in() && current_user_can("manage_records")){
     if(!isset($_REQUEST["estado"])){
-        button_voltar();
-        #echo "ta";
-        echo "<table>
-            <tr>
-                <th>Nome</th>
-                <th>Data de Nascimento</th>
-                <th>Enc. de educação</th>
-                <th>Telefone do Enc.</th>
-                <th>e-mail</th>
-                <th>Registos</th>
-            </tr>
-            ";
+        
+        $buscarCrianca = "SELECT * FROM child ORDER BY child.name";
+        $resultCrianca = mysqli_query($link,$buscarCrianca);
 
-                $dados = "SELECT * FROM child ORDER BY child.name";
-                $resultDados = mysqli_query($link, $dados);
+        if(mysqli_num_rows($resultCrianca)>0){
+            echo "<table>
+                <tr>
+                    <th>Nome</th>
+                    <th>Data de Nascimento</th>
+                    <th>Enc. de educação</th>
+                    <th>Telefone do Enc.</th>
+                    <th>e-mail</th>
+                    <th>Registos</th>
+                </tr>
+                ";
 
-                if(mysqli_num_rows($resultDados)>0){
-                    while($Crianca = mysqli_fetch_assoc($resultDados)){
+            while($Crianca = mysqli_fetch_assoc($resultCrianca)){
 
-                        echo "<tr><td>" .$Crianca["name"]. "</td>";
-                        echo "<td>" .$Crianca["birth_date"]. "</td>";
-                        echo "<td>" .$Crianca["tutor_name"]. "</td>";    
-                        echo "<td>" .$Crianca["tutor_phone"]. "</td>";
-                        echo "<td>" .$Crianca["tutor_email"]. "</td>";
-                        echo "<td>"; 
+                echo "<tr><td>" .$Crianca["name"]. "</td>";
+                echo "<td>" .$Crianca["birth_date"]. "</td>";
+                echo "<td>" .$Crianca["tutor_name"]. "</td>";    
+                echo "<td>" .$Crianca["tutor_phone"]. "</td>";
+                echo "<td>" .$Crianca["tutor_email"]. "</td>";
+                echo "<td>"; 
+
+                $buscarItem = "SELECT `name`,`id` FROM item WHERE item.id <= 3 ORDER BY item.name ASC";
+                $resultItem = mysqli_query($link,$buscarItem);
                         
-                        $cadaidcriança = $Crianca["id"];
+                while($Item = mysqli_fetch_assoc($resultItem)){
 
-                        $buscarItem = "SELECT `name`,`id` FROM item WHERE item.id <= 3 ORDER BY item.name ASC";
-                        $resultItem = mysqli_query($link,$buscarItem);
+                    if($Item["name"] == 'autismo'){
+
+                        echo strtoupper($Item["name"]).": ";
+
+                    }else{
+
+                        echo"<br>".strtoupper($Item["name"]).": ";
+                    }
+                    
+                    $cadaidcriança = $Crianca["id"];        
+                    $cadaiditem = $Item["id"];
+                    
+                    $buscarDataProducer = "SELECT DISTINCT value.time,value.date,value.producer FROM item INNER JOIN subitem ON item.id = subitem.item_id INNER JOIN value ON subitem.id = value.subitem_id WHERE child_id = $cadaidcriança AND item_id = $cadaiditem AND value.producer != '' AND value.value != '' ORDER BY item.name ASC, date ASC, time ASC";
+                    $resultDataProducer = mysqli_query($link,$buscarDataProducer);  
+                    
+                    while($DataProducer = mysqli_fetch_assoc($resultDataProducer)){
+
+                        echo "<br>[editar][apagar]- <strong>".$DataProducer["date"]."</strong> (".$DataProducer["producer"].") - ";
+
+                        $cadaData = $DataProducer["date"];
+                        $cadaTime = $DataProducer["time"];
                         
-                        while($Item = mysqli_fetch_assoc($resultItem)){
-                            
-                            $cadaiditem = $Item["id"];
-                            
-                            $query = "SELECT distinct item.name,item.id,subitem.name AS s_nome ,value.id AS v_id,value.child_id,value.subitem_id,value.value,value.date,value.time,value.producer 
-                            FROM item 
-                            INNER JOIN subitem ON item.id = subitem.item_id 
-                            INNER JOIN value ON subitem.id = value.subitem_id 
-                            WHERE child_id = $cadaidcriança AND item.id = $cadaiditem AND value.producer != '' AND value.value != '' 
-                            ORDER BY item.name ASC, date DESC, time DESC";
-                            
-                            $resultQuery = mysqli_query($link,$query);
+                        $buscarQuery = "SELECT item.name,item.id,subitem.name AS s_nome ,value.id AS v_id,value.child_id,value.subitem_id,value.value,value.date,value.time,value.producer 
+                        FROM item 
+                        INNER JOIN subitem ON item.id = subitem.item_id 
+                        INNER JOIN value ON subitem.id = value.subitem_id  
+                        WHERE child_id = $cadaidcriança AND item_id = $cadaiditem AND value.time = '$cadaTime' AND value.date = '$cadaData' AND value.producer != '' AND value.value != ''
+                        ORDER BY item.name ASC, date ASC, time ASC";      
+                        $resultQuery = mysqli_query($link,$buscarQuery);
+                        
+                        while($query = mysqli_fetch_assoc($resultQuery)){
 
-                            //utilizar um if para ver se tem informação em cada criança se não nao imprime isto
-                            //talvez usar distict 
-                            echo"".strtoupper($Item["name"]).": <p>";
-                            while($row2 = mysqli_fetch_assoc($resultQuery)){
-
-                                // usar um if para se o nome for igual ao primeiro fazer paragrafo caso contrario continuar na mesma linha
-                                echo" </p>[ed][ap]- <strong>".$row2["date"]."</strong> (".$row2["producer"].") - <strong>".$row2["s_nome"]."</strong> (".$row2["value"].");<p>";
-                            }
-                        }echo"</td></tr>";   
-                    } 
-                }
-                else{
-                    echo "<p> Não há crianças </p>";
-                }
+                            echo "<strong>".$query["s_nome"]."</strong> (".$query["value"]."); ";
+                        }
+                    }
+                }echo"</td></tr>";   
+            } 
+        }else{
+            echo "<p> Não há crianças </p>";
+        }
         echo "
             </table>";
 
@@ -164,49 +176,47 @@ if(is_user_logged_in() && current_user_can("manage_records")){
         }
 
         if($erro > 0){
-            echo "<p></p>";
             button_voltar();
         }else{
 
             echo 
             '
-            <p>Estamos prestes a inserir os dados abaixo na base de dados.</p> 
-            <p>Nome : '.$_POST["person_name"].' </p>
-            <p>Data de Nascimento: '.$_POST["birth_date"].'</p>
-            <p>Nome do encarregado de educação: '.$_POST["tutor_name"].'</p>
-            <p>Telefone do encarregado de educação: '.$_POST["tutor_phone"].'</p>
-            <p>E-mail do encarregado de educação: '.$_POST["tutor_email"].'</p>
-            <p>Confirma que os dados estão correctos e pretende submeter os mesmos?</p>
+            <p>Estamos prestes a inserir os dados abaixo na base de dados. Confirma que os dados estão correctos e pretende submeter os mesmos?</p> 
+            <p>Nome : '.$nome.' </p>
+            <p>Data de Nascimento: '.$data_nascimento.'</p>
+            <p>Nome do encarregado de educação: '.$nome_tutor.'</p>
+            <p>Telefone do encarregado de educação: '.$numero_tutor.'</p>
+            <p>E-mail do encarregado de educação: '.$email_tutor.'</p>
             ';
-
-            button_voltar();
             
             echo 
             '
             <form action="" method="post" >
-            <input type = "hidden" name = "person_name" value="'.$_POST["person_name"].'">
-            <input type = "hidden" name = "birth_date" value="'.$_POST["birth_date"].'">
-            <input type = "hidden" name = "tutor_name" value="'.$_POST["tutor_name"].'">
-            <input type = "hidden" name = "tutor_phone" value="'.$_POST["tutor_phone"].'">
-            <input type = "hidden" name = "tutor_email" value="'.$_POST["tutor_email"].'">
+            <input type = "hidden" name = "person_nm" value="'.$nome.'">
+            <input type = "hidden" name = "birth_dt" value="'.$data_nascimento.'">
+            <input type = "hidden" name = "tutor_nm" value="'.$nome_tutor.'">
+            <input type = "hidden" name = "tutor_phne" value="'.$numero_tutor.'">
+            <input type = "hidden" name = "tutor_mail" value="'.$email_tutor.'">
+            '.button_voltar().'ou <br>
             <input type = "hidden" name = "estado" value ="inserir">
             <input type="submit" name="Submeter" value="Submeter">
             </form> 
             ';
+
         }
     }
     elseif($_REQUEST["estado"] == "inserir"){
         
         echo "<h3>Dados de registo - inserção </h3>";
 
-        $nome = $_POST["person_name"];
-        $data_nascimento = $_POST["birth_date"];
-        $nome_tutor = $_POST["tutor_name"];
-        $numero_tutor = $_POST["tutor_phone"];
-        $email_tutor = $_POST["tutor_email"];
+        $nome_pequeno = $_POST["person_nm"];
+        $data_nscmt = $_POST["birth_dt"];
+        $nome_ttr = $_POST["tutor_nm"];
+        $numero_ttr = $_POST["tutor_phne"];
+        $email_ttr = $_POST["tutor_mail"];
         
         $inserirNaTabela = "INSERT INTO child (id, name, birth_date, tutor_name, tutor_phone, tutor_email)
-                            VALUES (NULL, '$nome','$data_nascimento','$nome_tutor','$numero_tutor','$email_tutor')";
+                            VALUES (NULL, '$nome_pequeno','$data_nscmt','$nome_ttr','$numero_ttr','$email_ttr')";
         $result2 = mysqli_query($link,$inserirNaTabela);
         
         if($result2){
@@ -224,5 +234,4 @@ else{
     echo "Não tem autorização para aceder a esta página";
     button_voltar();
 }
-
 ?>
