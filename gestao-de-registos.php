@@ -46,7 +46,12 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                     $cadaidcriança = $Crianca["id"];        
                     $cadaiditem = $Item["id"];
                     
-                    $buscarDataProducer = "SELECT DISTINCT value.time,value.date,value.producer FROM item INNER JOIN subitem ON item.id = subitem.item_id INNER JOIN value ON subitem.id = value.subitem_id WHERE child_id = $cadaidcriança AND item_id = $cadaiditem AND value.producer != '' AND value.value != '' ORDER BY item.name ASC, date ASC, time ASC";
+                    $buscarDataProducer = "SELECT DISTINCT value.time, value.date, value.producer 
+                    FROM item 
+                    INNER JOIN subitem ON item.id = subitem.item_id 
+                    INNER JOIN value ON subitem.id = value.subitem_id 
+                    WHERE child_id = $cadaidcriança AND item_id = $cadaiditem AND value.producer != '' AND value.value != '' 
+                    ORDER BY item.name ASC, date ASC, time ASC";
                     $resultDataProducer = mysqli_query($link,$buscarDataProducer);  
                     
                     while($DataProducer = mysqli_fetch_assoc($resultDataProducer)){
@@ -56,7 +61,7 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                         $cadaData = $DataProducer["date"];
                         $cadaTime = $DataProducer["time"];
                         
-                        $buscarQuery = "SELECT item.name,item.id,subitem.name AS s_nome ,value.id AS v_id,value.child_id,value.subitem_id,value.value,value.date,value.time,value.producer 
+                        $buscarQuery = "SELECT item.name, item.id, subitem.name AS s_nome, subitem.unit_type_id, value.id AS v_id, value.child_id, value.subitem_id, value.value, value.date, value.time, value.producer 
                         FROM item 
                         INNER JOIN subitem ON item.id = subitem.item_id 
                         INNER JOIN value ON subitem.id = value.subitem_id  
@@ -66,7 +71,16 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                         
                         while($query = mysqli_fetch_assoc($resultQuery)){
 
-                            echo "<strong>".$query["s_nome"]."</strong> (".$query["value"]."); ";
+                            if($query["unit_type_id"] != ""){
+                        
+                                $obterUnidade = "SELECT * FROM subitem_unit_type WHERE id ='". $query["unit_type_id"]."'";
+                                $resultUnidade = mysqli_query($link,$obterUnidade);
+                                $Unidade = mysqli_fetch_assoc($resultUnidade);
+
+                                echo "<strong>".$query["s_nome"]."</strong> (".$query["value"]." ".$Unidade["name"]."); ";
+                            }else{
+                                echo "<strong>".$query["s_nome"]."</strong> (".$query["value"]."); ";
+                            }
                         }
                     }
                 }echo"</td></tr>";   
