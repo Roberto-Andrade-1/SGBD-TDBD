@@ -56,7 +56,7 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                     
                     while($DataProducer = mysqli_fetch_assoc($resultDataProducer)){
 
-                        echo "<br>[editar][apagar]- <strong>".$DataProducer["date"]."</strong> (".$DataProducer["producer"].") - ";
+                        echo "<br>[<a href='edicao-de-dados?estado=editar&item=".$Item["id"]."&crianca=".$Crianca["id"]."&tabela=registos' >editar</a>][apagar]- <strong>".$DataProducer["date"]."</strong> (".$DataProducer["producer"].") - ";
 
                         $cadaData = $DataProducer["date"];
                         $cadaTime = $DataProducer["time"];
