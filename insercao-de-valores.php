@@ -1,6 +1,7 @@
 <?php
 require_once("custom/php/common.php");
 if(is_user_logged_in() && current_user_can("insert_values")){
+    
     if(!isset($_REQUEST["estado"])){  
         
         echo "
@@ -105,7 +106,7 @@ if(is_user_logged_in() && current_user_can("insert_values")){
         echo "<h3> Inserção de valores - ".$_SESSION["item_name"]."</h3>";
 
         //obtem os subitens que o item id do subitem sejam iguais ao da variavel de sessao
-        $obterSubitens = "SELECT * FROM subitem WHERE item_id= ".$_SESSION["item_id"]." AND state = 'active' ORDER BY form_field_order ASC";
+        $obterSubitens = "SELECT * FROM subitem WHERE item_id= ".$_SESSION["item_id"]." AND state = 'active' AND mandatory = 1 ORDER BY form_field_order ASC";
         $resultObterSubitens = mysqli_query($link,$obterSubitens);
         
         echo'

@@ -211,7 +211,7 @@ if(is_user_logged_in()){
             $_SESSION["item_type_id"] = $Item["item_type_id"];
 
             //obtem os subitens que o item id do subitem sejam iguais ao da variavel de sessao
-            $obterSubitens = "SELECT * FROM subitem WHERE item_id= ".$_SESSION["item_id"]." AND state = 'active' ORDER BY form_field_order ASC";
+            $obterSubitens = "SELECT * FROM subitem WHERE item_id= ".$_SESSION["item_id"]." AND state = 'active' AND mandatory = 1 ORDER BY form_field_order ASC";
             $resultObterSubitens = mysqli_query($link,$obterSubitens);
         
             echo'
@@ -529,7 +529,7 @@ if(is_user_logged_in()){
             $erro++;
         }
 
-        if (empty($ordemDoCampoEditado) || $ordemDoCampoEditado < 1) {
+        if (empty($_POST['ordemDoCampoDoForm']) || $_POST['ordemDoCampoDoForm'] < 1 || !is_numeric($_POST['ordemDoCampoDoForm'])) {
             echo "<p style='color:red;'>É necessário inserir um número maior que 0 na ordem do campo no formulário</p>";
             $erro++;
         }

@@ -28,22 +28,20 @@ if(is_user_logged_in() && current_user_can("manage_records")){
                 echo "<td>" .$Crianca["tutor_phone"]. "</td>";
                 echo "<td>" .$Crianca["tutor_email"]. "</td>";
                 echo "<td>"; 
+                
+                $cadaidcriança = $Crianca["id"];
 
-                $buscarItem = "SELECT `name`,`id` FROM item WHERE item.id <= 3 ORDER BY item.name ASC";
+                $buscarItem = "SELECT DISTINCT item.name, item.id 
+                FROM item 
+                INNER JOIN subitem ON item.id = subitem.item_id 
+                INNER JOIN value ON subitem.id = value.subitem_id 
+                WHERE child_id = $cadaidcriança ORDER BY item.name ASC";
                 $resultItem = mysqli_query($link,$buscarItem);
                         
                 while($Item = mysqli_fetch_assoc($resultItem)){
 
-                    if($Item["name"] == 'autismo'){
-
-                        echo strtoupper($Item["name"]).": ";
-
-                    }else{
-
-                        echo"<br>".strtoupper($Item["name"]).": ";
-                    }
-                    
-                    $cadaidcriança = $Crianca["id"];        
+                    echo"<br>".strtoupper($Item["name"]).": ";
+                            
                     $cadaiditem = $Item["id"];
                     
                     $buscarDataProducer = "SELECT DISTINCT value.time, value.date, value.producer 
@@ -174,7 +172,7 @@ if(is_user_logged_in() && current_user_can("manage_records")){
             $erro++;
         }else{
             if(!preg_match("/^9[1236][0-9]{7}$/",$numero_tutor)){
-                $numero_tutorErro = "<p> Número: Introduza um número com 9 algarismos </p>";
+                $numero_tutorErro = "<p> Número: Introduza um número com 9 algarismos ou um numero que comece por 91, 92, 93 ou 96 </p>";
                 echo $numero_tutorErro;
                 $erro++;
             }
