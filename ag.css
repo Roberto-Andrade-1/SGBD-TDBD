@@ -1,0 +1,127 @@
+/*Diogo Paixão*/
+
+.tabelaS {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tabelaS thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.tabelaS th,
+.tabelaS td {
+    padding: 12px 15px;
+}
+
+.tabelaS tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.tabelaS tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type=submit] {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+/*Afonso Nunes*/
+
+.pesquisaP {
+    color: rgb(29 128 189) !important;
+    font-weight: bold !important;
+  }
+  
+  .tabelaInvisivel {
+    width: 100% !important;
+    border: 2px solid grey !important;
+  }
+  
+  .tabelaInvisivel tr,
+  .tabelaInvisivel td {
+    width: 30%;
+    border: transparent;
+    height: 100px;
+  }
+  .tabelaEscolha {
+    width: 100% !important;
+    text-align: center !important;
+  }
+  
+  .tabelaEscolha th {
+    background-color: #0000ff94;
+    color: beige;
+  }
+  
+  .tabelaEscolha td,
+  .tabelaEscolha tr {
+    background-color: lightblue;
+    color: black;
+  }
+  
+  .tabelaPesquisa {
+    width: 100% !important;
+  }
+  
+  .tabelaPesquisa th {
+    background-color: darkgreen;
+    color: white;
+  }
+  
+  .tabelaPesquisa td,
+  .tabelaPesquisa tr {
+    background-color: lightgrey;
+    color: black;
+  }
+  
+  .selectOperador {
+    width: 50%;
+    border-radius: 5px;
+    border-color: black !important;
+    box-shadow: 2px 2px 5px !important;
+  }
+  
+  .txtPesquisa {
+    width: 75% !important;
+    border-radius: 5px !important;
+    border-color: black !important;
+    box-shadow: 2px 2px 5px !important;
+  }
+  
+  .obrigatorio {
+    color: red !important;
+    font-size: 20px !important;
+  }
+  
+  .queryDescrita {
+    font-size: 17px !important;
+  }
+  
